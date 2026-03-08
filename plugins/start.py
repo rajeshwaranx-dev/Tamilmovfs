@@ -25,9 +25,18 @@ from database.database import add_admin, add_user, del_admin, del_user, full_adm
 SECONDS = TIME
 TUT_VID = f"{TUT_VID}"
 
+# PRIVATE BOT — never sends files directly to users
+DISABLE_FILE_SEND = True
+
+# If DISABLE_FILE_SEND=true this bot never sends files
+DISABLE_FILE_SEND = os.environ.get("DISABLE_FILE_SEND", "").lower() == "true"
+
 
 # ── Helper: send messages by IDs to user ────────────────────────
 async def send_messages_by_ids(client, message, ids):
+    if DISABLE_FILE_SEND:
+        await message.reply("Sorry, this bot is not active. Please use the new link.")
+        return []
     temp_msg = await message.reply("ɢɪᴠᴇ ᴍᴇ ᴀ ꜱᴇᴄᴏɴᴅ ʜᴇʀᴇ...⏳")
     try:
         messages = await get_messages(client, ids)
