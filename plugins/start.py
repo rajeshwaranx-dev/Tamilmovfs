@@ -146,6 +146,19 @@ async def start_command(client: Client, message: Message):
                 return
             # ───────────────────────────────────────────────────
 
+            # ── NEW: fs_ format — fs_BASE64(msg_id) ─────────────
+            if base64_string.startswith("fs_"):
+                try:
+                    import base64 as _b64
+                    msg_id = int(_b64.b64decode(base64_string[3:]).decode())
+                    ids = [msg_id]
+                except Exception:
+                    return
+                snt_msgs = await send_messages_by_ids(client, message, ids)
+                await schedule_delete(message, snt_msgs)
+                return
+            # ───────────────────────────────────────────────────
+
             argument = _string.split("-")
             if (len(argument) == 5) or (len(argument) == 4):
                 if not await present_hash(base64_string):
