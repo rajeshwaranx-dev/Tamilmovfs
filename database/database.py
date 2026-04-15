@@ -12,10 +12,11 @@ from config import ADMINS, DB_URL, DB_NAME
 dbclient = motor.motor_asyncio.AsyncIOMotorClient(DB_URL)
 database = dbclient[DB_NAME]
 
-user_data  = database['users']
-admin_data = database['admins']
-link_data  = database['links']
-batch_data = database['batches']   # ✅ NEW: stores batch msg_id lists
+user_data    = database['users']
+admin_data   = database['admins']
+link_data    = database['links']
+batch_data   = database['batches']
+channel_data = database['db_channels']
 
 default_verify = {
     'is_verified': False,
@@ -34,6 +35,17 @@ def new_user(id):
             'link': ""
         }
     }
+
+# ── db channels ────────────────────────────────────────────────
+async def add_db_channel(channel_id: int):
+    await channel_data.update_one({'_id': channel_id}, {'$set': {'_id': channel_id}}, upsert=True)
+
+async def remove_db_channel(channel_id: int):
+    await channel_data.delete_one({'_id': channel_id})
+
+async def get_db_channels():
+    docs = channel_data.find()
+    return [doc['_id'] async for doc in docs]
 
 # ── links ──────────────────────────────────────────────────────
 async def new_link(hash: str):
@@ -58,7 +70,6 @@ async def get_clicks(hash: str):
 
 # ── batches ────────────────────────────────────────────────────
 async def store_batch(key: str, msg_ids: list):
-    """Store a list of message IDs under a short key."""
     await batch_data.update_one(
         {'_id': key},
         {'$set': {'msg_ids': msg_ids}},
@@ -66,7 +77,6 @@ async def store_batch(key: str, msg_ids: list):
     )
 
 async def get_batch(key: str):
-    """Retrieve message IDs for a batch key. Returns list or None."""
     doc = await batch_data.find_one({'_id': key})
     return doc['msg_ids'] if doc else None
 
@@ -121,4 +131,4 @@ async def full_adminbase():
 # ⭐ FOR MORE HIGH-QUALITY OPEN-SOURCE BOTS, FOLLOW US ON GITHUB.
 # 🔗 OFFICIAL GITHUB: https://github.com/Trinity-Mods
 # 📩 NEED HELP OR HAVE QUESTIONS? REACH OUT VIA TELEGRAM: @velvetexams
-# ────────────────────────────────────────────────────────────────
+# ─────────────────────────
