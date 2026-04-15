@@ -1,16 +1,7 @@
-# ────────────────────────────────────────────────────────────────
-# ✅ THIS PROJECT IS DEVELOPED AND MAINTAINED BY @trinityXmods (TELEGRAM)
-# 🚫 DO NOT REMOVE OR ALTER THIS CREDIT LINE UNDER ANY CIRCUMSTANCES.
-# ⭐ FOR MORE HIGH-QUALITY OPEN-SOURCE BOTS, FOLLOW US ON GITHUB.
-# 🔗 OFFICIAL GITHUB: https://github.com/Trinity-Mods
-# 📩 NEED HELP OR HAVE QUESTIONS? REACH OUT VIA TELEGRAM: @velvetexams
-# ────────────────────────────────────────────────────────────────
-
 from pyrogram import Client, filters
 from pyrogram.types import ChatMemberUpdated
 from bot import Bot
 from database.database import add_db_channel, remove_db_channel
-
 
 @Bot.on_chat_member_updated(filters.channel)
 async def bot_promoted_or_demoted(client: Client, update: ChatMemberUpdated):
@@ -27,17 +18,9 @@ async def bot_promoted_or_demoted(client: Client, update: ChatMemberUpdated):
         if not any(ch.id == ch_id for ch in getattr(client, 'db_channels', [])):
             ch = await client.get_chat(ch_id)
             client.db_channels.append(ch)
-            client.db_channel = client.db_channels[0]
+        client.db_channel = client.db_channels[0]
     elif any(s in status for s in ("left", "banned", "member")):
         await remove_db_channel(ch_id)
         client.db_channels = [ch for ch in getattr(client, 'db_channels', []) if ch.id != ch_id]
         if client.db_channels:
             client.db_channel = client.db_channels[0]
-
-# ────────────────────────────────────────────────────────────────
-# ✅ THIS PROJECT IS DEVELOPED AND MAINTAINED BY @trinityXmods (TELEGRAM)
-# 🚫 DO NOT REMOVE OR ALTER THIS CREDIT LINE UNDER ANY CIRCUMSTANCES.
-# ⭐ FOR MORE HIGH-QUALITY OPEN-SOURCE BOTS, FOLLOW US ON GITHUB.
-# 🔗 OFFICIAL GITHUB: https://github.com/Trinity-Mods
-# 📩 NEED HELP OR HAVE QUESTIONS? REACH OUT VIA TELEGRAM: @velvetexams
-# ───────────────────────────────
