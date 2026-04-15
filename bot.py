@@ -7,7 +7,7 @@
 # ────────────────────────────────────────────────────────────────
 
 from aiohttp import web
-from database.database import full_adminbase
+from database.database import full_adminbase, get_db_channels, add_db_channel
 from plugins import web_server
 from pyrogram import Client
 from pyrogram.enums import ParseMode
@@ -106,13 +106,20 @@ class Bot(Client):
                 self.LOGGER(__name__).warning(f"Please Double check the FORCE_SUB_CHANNEL value and Make sure Bot is Admin in channel with Invite Users via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL4}")
                 sys.exit()
         try:
-            db_channel = await self.get_chat(CHANNEL_ID)
-            self.db_channel = db_channel
-            test = await self.send_message(chat_id=db_channel.id, text="Test Message")
-            await test.delete()
+            saved_channels = await get_db_channels()
+            if not saved_channels:
+                await add_db_channel(CHANNEL_ID)
+                saved_channels = [CHANNEL_ID]
+            self.db_channels = []
+            for ch_id in saved_channels:
+                ch = await self.get_chat(ch_id)
+                self.db_channels.append(ch)
+                test = await self.send_message(chat_id=ch.id, text="Test Message")
+                await test.delete()
+            self.db_channel = self.db_channels[0]
         except Exception as e:
             self.LOGGER(__name__).warning(e)
-            self.LOGGER(__name__).warning(f"Make Sure bot is Admin in DB Channel, and Double check the CHANNEL_ID Value, Current Value {CHANNEL_ID}")
+            self.LOGGER(__name__).warning(f"Make Sure bot is Admin in DB Channel. Error: {e}")
             sys.exit()
 
         initadmin = await full_adminbase()
@@ -146,4 +153,4 @@ class Bot(Client):
 # ⭐ FOR MORE HIGH-QUALITY OPEN-SOURCE BOTS, FOLLOW US ON GITHUB.
 # 🔗 OFFICIAL GITHUB: https://github.com/Trinity-Mods
 # 📩 NEED HELP OR HAVE QUESTIONS? REACH OUT VIA TELEGRAM: @velvetexams
-# ────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────
