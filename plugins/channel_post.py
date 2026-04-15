@@ -13,7 +13,7 @@ from pyrogram import filters, Client
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait
 from bot import Bot
-from config import ADMINS, CHANNEL_ID, DISABLE_CHANNEL_BUTTON, USER_REPLY_TEXT
+from config import ADMINS, DISABLE_CHANNEL_BUTTON, USER_REPLY_TEXT
 
 
 def is_media(message: Message) -> bool:
@@ -22,6 +22,12 @@ def is_media(message: Message) -> bool:
         message.photo or message.animation or message.voice or
         message.video_note or message.sticker
     )
+
+
+async def is_db_channel(_, client, message):
+    return message.chat.id in [ch.id for ch in getattr(client, 'db_channels', [])]
+
+dynamic_channel_filter = filters.create(is_db_channel)
 
 
 @Bot.on_message(filters.private & ~filters.user(ADMINS) & ~filters.command(['start']))
@@ -61,7 +67,7 @@ async def channel_post(client: Client, message: Message):
             pass
 
 
-@Bot.on_message(filters.channel & filters.incoming & filters.chat(CHANNEL_ID))
+@Bot.on_message(filters.channel & filters.incoming & dynamic_channel_filter)
 async def new_post(client: Client, message: Message):
     if DISABLE_CHANNEL_BUTTON:
         return
@@ -88,4 +94,4 @@ async def new_post(client: Client, message: Message):
 # ⭐ FOR MORE HIGH-QUALITY OPEN-SOURCE BOTS, FOLLOW US ON GITHUB.
 # 🔗 OFFICIAL GITHUB: https://github.com/Trinity-Mods
 # 📩 NEED HELP OR HAVE QUESTIONS? REACH OUT VIA TELEGRAM: @velvetexams
-# ────────────────────────────────────────────────────────────────
+# ────────────────────────────────
