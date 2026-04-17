@@ -5,8 +5,6 @@
 # 🔗 OFFICIAL GITHUB: https://github.com/Trinity-Mods
 # 📩 NEED HELP OR HAVE QUESTIONS? REACH OUT VIA TELEGRAM: @velvetexams
 # ────────────────────────────────────────────────────────────────
-# 🔒 PRIVATE BOT — Creates links only. Does NOT send files to users.
-# ────────────────────────────────────────────────────────────────
 import asyncio
 import base64
 from pyrogram import filters, Client
@@ -42,7 +40,6 @@ async def channel_post(client: Client, message: Message):
         return
 
     reply_text = await message.reply_text("Please Wait...! 🫷", quote=True)
-
     db_channels = getattr(client, 'db_channels', [client.db_channel])
     links = []
 
