@@ -1,16 +1,8 @@
-# ────────────────────────────────────────────────────────────────
-# ✅ THIS PROJECT IS DEVELOPED AND MAINTAINED BY @trinityXmods (TELEGRAM)
-# 🚫 DO NOT REMOVE OR ALTER THIS CREDIT LINE UNDER ANY CIRCUMSTANCES.
-# ⭐ FOR MORE HIGH-QUALITY OPEN-SOURCE BOTS, FOLLOW US ON GITHUB.
-# 🔗 OFFICIAL GITHUB: https://github.com/Trinity-Mods
-# 📩 NEED HELP OR HAVE QUESTIONS? REACH OUT VIA TELEGRAM: @velvetexams
-# ────────────────────────────────────────────────────────────────
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from bot import Bot
 from database.database import add_db_channel, remove_db_channel, get_db_channels
 from config import OWNER_ID
-
 
 @Bot.on_message(filters.private & filters.user(OWNER_ID) & filters.command("addgroup"))
 async def add_channel(client: Client, message: Message):
@@ -28,7 +20,6 @@ async def add_channel(client: Client, message: Message):
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
 
-
 @Bot.on_message(filters.private & filters.user(OWNER_ID) & filters.command("removegroup"))
 async def remove_channel(client: Client, message: Message):
     if len(message.command) < 2:
@@ -43,7 +34,6 @@ async def remove_channel(client: Client, message: Message):
         await message.reply(f"✅ Removed. Total channels: {len(client.db_channels)}")
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
-
 
 @Bot.on_message(filters.private & filters.user(OWNER_ID) & filters.command("listgroup"))
 async def list_channels(client: Client, message: Message):
