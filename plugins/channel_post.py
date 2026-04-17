@@ -35,7 +35,6 @@ async def user_reply(client: Client, message: Message):
     await message.reply_text(USER_REPLY_TEXT, quote=True, disable_web_page_preview=True)
 
 @Bot.on_message(filters.private & filters.user(ADMINS) & ~filters.command(['start','users','broadcast','batch','genlink','stats','auth_secret','deauth_secret', 'auth', 'sbatch', 'exit', 'add_admin', 'del_admin', 'admins', 'add_prem', 'ping', 'restart', 'ch2l', 'cancel', 'addgroup', 'removegroup', 'listgroup']))
-@Bot.on_message(filters.private & filters.user(ADMINS) 
 async def channel_post(client: Client, message: Message):
     if not is_media(message):
         await message.reply_text("❌ Only files/media can be stored.\nPlain text messages are ignored.", quote=True)
