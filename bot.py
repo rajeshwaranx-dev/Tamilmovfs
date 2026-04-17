@@ -14,11 +14,12 @@ from pyrogram.enums import ParseMode
 from pyrogram.raw import functions
 import sys
 from pyromod import listen
-from pyromod.listen import ListenerTypes
 from datetime import datetime
 
 from config import ADMINS, API_HASH, APP_ID, LOGGER, TG_BOT_TOKEN, TG_BOT_WORKERS, FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, FORCE_SUB_CHANNEL3, FORCE_SUB_CHANNEL4, CHANNEL_ID, PORT, OWNER_ID
 
+
+# fix for current pyrogram
 from pyrogram import utils
 
 def get_peer_type_new(peer_id: int) -> str:
@@ -32,13 +33,16 @@ def get_peer_type_new(peer_id: int) -> str:
 utils.get_peer_type = get_peer_type_new
 
 
+
 class Bot(Client):
     def __init__(self):
         super().__init__(
             name="Bot",
             api_hash=API_HASH,
             api_id=APP_ID,
-            plugins={"root": "plugins"},
+            plugins={
+                "root": "plugins"
+            },
             workers=TG_BOT_WORKERS,
             bot_token=TG_BOT_TOKEN
         )
@@ -47,17 +51,12 @@ class Bot(Client):
     async def start(self):
         await super().start()
 
-        # Fix pyromod KeyError bug
-        for lt in ListenerTypes:
-            if lt not in self.listeners:
-                self.listeners[lt] = []
-
+        # ✅ Drop all pending updates accumulated while bot was offline
         await self.invoke(functions.updates.GetState())
 
         usr_bot_me = await self.get_me()
         self.uptime = datetime.now()
         print(ADMINS)
-
         if FORCE_SUB_CHANNEL:
             try:
                 link = (await self.get_chat(FORCE_SUB_CHANNEL)).invite_link
@@ -67,9 +66,9 @@ class Bot(Client):
                 self.invitelink = link
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
-                self.LOGGER(__name__).warning(f"FORCE_SUB_CHANNEL error: {FORCE_SUB_CHANNEL}")
+                self.LOGGER(__name__).warning("Bot can't Export Invite link from Force Sub Channel!")
+                self.LOGGER(__name__).warning(f"Please Double check the FORCE_SUB_CHANNEL value and Make sure Bot is Admin in channel with Invite Users via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL}")
                 sys.exit()
-
         if FORCE_SUB_CHANNEL2:
             try:
                 link = (await self.get_chat(FORCE_SUB_CHANNEL2)).invite_link
@@ -79,9 +78,9 @@ class Bot(Client):
                 self.invitelink2 = link
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
-                self.LOGGER(__name__).warning(f"FORCE_SUB_CHANNEL2 error: {FORCE_SUB_CHANNEL2}")
+                self.LOGGER(__name__).warning("Bot can't Export Invite link from Force Sub Channel!")
+                self.LOGGER(__name__).warning(f"Please Double check the FORCE_SUB_CHANNEL value and Make sure Bot is Admin in channel with Invite Users via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL2}")
                 sys.exit()
-
         if FORCE_SUB_CHANNEL3:
             try:
                 link = (await self.get_chat(FORCE_SUB_CHANNEL3)).invite_link
@@ -91,9 +90,9 @@ class Bot(Client):
                 self.invitelink3 = link
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
-                self.LOGGER(__name__).warning(f"FORCE_SUB_CHANNEL3 error: {FORCE_SUB_CHANNEL3}")
+                self.LOGGER(__name__).warning("Bot can't Export Invite link from Force Sub Channel!")
+                self.LOGGER(__name__).warning(f"Please Double check the FORCE_SUB_CHANNEL value and Make sure Bot is Admin in channel with Invite Users via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL2}")
                 sys.exit()
-
         if FORCE_SUB_CHANNEL4:
             try:
                 link = (await self.get_chat(FORCE_SUB_CHANNEL4)).invite_link
@@ -103,9 +102,9 @@ class Bot(Client):
                 self.invitelink4 = link
             except Exception as a:
                 self.LOGGER(__name__).warning(a)
-                self.LOGGER(__name__).warning(f"FORCE_SUB_CHANNEL4 error: {FORCE_SUB_CHANNEL4}")
+                self.LOGGER(__name__).warning("Bot can't Export Invite link from Force Sub Channel!")
+                self.LOGGER(__name__).warning(f"Please Double check the FORCE_SUB_CHANNEL value and Make sure Bot is Admin in channel with Invite Users via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL4}")
                 sys.exit()
-
         try:
             saved_channels = await get_db_channels()
             if not saved_channels:
@@ -120,7 +119,7 @@ class Bot(Client):
             self.db_channel = self.db_channels[0]
         except Exception as e:
             self.LOGGER(__name__).warning(e)
-            self.LOGGER(__name__).warning(f"DB Channel error: {e}")
+            self.LOGGER(__name__).warning(f"Make Sure bot is Admin in DB Channel. Error: {e}")
             sys.exit()
 
         initadmin = await full_adminbase()
@@ -128,16 +127,30 @@ class Bot(Client):
             if x in ADMINS:
                 continue
             ADMINS.append(x)
+        await self.send_message(
+            chat_id=OWNER_ID,
+            text="Bot has started! 😉"
+        )
 
-        await self.send_message(chat_id=OWNER_ID, text="Bot has started! 😉")
         self.set_parse_mode(ParseMode.HTML)
         self.LOGGER(__name__).info(f"Bot made by @the_universal_being!")
         self.username = usr_bot_me.username
 
+        # web-response
         app = web.AppRunner(await web_server())
         await app.setup()
-        await web.TCPSite(app, "0.0.0.0", PORT).start()
+        bind_address = "0.0.0.0"
+        await web.TCPSite(app, bind_address, PORT).start()
 
     async def stop(self, *args):
         await super().stop()
-        self.LOGGER(__name__).info("Bot stopped. contact @the_universal_being")
+        self.LOGGER(__name__).info("Bot stopped.contact @the_universal_being")
+
+
+# ────────────────────────────────────────────────────────────────
+# ✅ THIS PROJECT IS DEVELOPED AND MAINTAINED BY @trinityXmods (TELEGRAM)
+# 🚫 DO NOT REMOVE OR ALTER THIS CREDIT LINE UNDER ANY CIRCUMSTANCES.
+# ⭐ FOR MORE HIGH-QUALITY OPEN-SOURCE BOTS, FOLLOW US ON GITHUB.
+# 🔗 OFFICIAL GITHUB: https://github.com/Trinity-Mods
+# 📩 NEED HELP OR HAVE QUESTIONS? REACH OUT VIA TELEGRAM: @velvetexams
+# ───────────────────────────────────
